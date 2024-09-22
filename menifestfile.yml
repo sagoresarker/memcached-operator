@@ -1,0 +1,7 @@
+apiVersion: cache.example.com/v1
+kind: MemcachedDeployment
+metadata:
+  name: example-memcached
+spec:
+  size: 3
+  image: memcached:1.4.36-alpine
