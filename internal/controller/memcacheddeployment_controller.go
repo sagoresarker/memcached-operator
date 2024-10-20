@@ -62,7 +62,6 @@ type MemcachedDeploymentReconciler struct {
 func (r *MemcachedDeploymentReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
 	log := log.FromContext(ctx)
 
-	// Fetch the MemcachedDeployment instance
 	memcached := &cachev1.MemcachedDeployment{}
 	err := r.Get(ctx, req.NamespacedName, memcached)
 	if err != nil {
@@ -72,7 +71,6 @@ func (r *MemcachedDeploymentReconciler) Reconcile(ctx context.Context, req ctrl.
 			log.Info("MemcachedDeployment resource not found. Ignoring since object must be deleted")
 			return ctrl.Result{}, nil
 		}
-		// Error reading the object - requeue the request.
 		log.Error(err, "Failed to get MemcachedDeployment")
 		return ctrl.Result{}, err
 	}

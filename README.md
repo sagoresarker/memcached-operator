@@ -1,114 +1,151 @@
-# memcached-operator
-// TODO(user): Add simple overview of use/purpose
+# Memcached Operator
 
-## Description
-// TODO(user): An in-depth paragraph about your project and overview of use
+## Overview
 
-## Getting Started
+The Memcached Operator is a Kubernetes operator designed to automate the deployment and management of Memcached instances within a Kubernetes cluster. It leverages a custom resource definition (CRD) to manage the lifecycle of Memcached deployments.
 
-### Prerequisites
-- go version v1.22.0+
-- docker version 17.03+.
-- kubectl version v1.11.3+.
-- Access to a Kubernetes v1.11.3+ cluster.
+## Features
 
-### To Deploy on the cluster
-**Build and push your image to the location specified by `IMG`:**
+- **Automated Deployment**: Simplifies the deployment of Memcached instances.
+- **Scalability**: Supports scaling of Memcached deployments.
+- **Status Monitoring**: Provides updates on the status of Memcached custom resources.
+- **Debugging Support**: Includes a debugging container (nettools) in each pod for troubleshooting.
 
-```sh
-make docker-build docker-push IMG=<some-registry>/memcached-operator:tag
+## Custom Resource Definition (CRD)
+
+The operator utilizes a CRD named `MemcachedDeployment`. Below is an example configuration:
+
+```yaml
+apiVersion: cache.example.com/v1
+kind: MemcachedDeployment
+metadata:
+  name: example-memcached
+spec:
+  size: 3
+  image: memcached:1.4.36-alpine
 ```
 
-**NOTE:** This image ought to be published in the personal registry you specified.
-And it is required to have access to pull the image from the working environment.
-Make sure you have the proper permission to the registry if the above commands don’t work.
+The CRD is defined as follows:
 
-**Install the CRDs into the cluster:**
-
-```sh
-make install
+```yaml
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  name: memcacheddeployments.cache.example.com
+spec:
+  group: cache.example.com
+  versions:
+    - name: v1
+      served: true
+      storage: true
+      schema:
+        openAPIV3Schema:
+          type: object
+          properties:
+            spec:
+              type: object
+              properties:
+                size:
+                  type: integer
+                  description: "Specifies the number of Memcached instances."
+                image:
+                  type: string
+                  description: "Defines the Docker image to use for the deployment."
+  scope: Namespaced
+  names:
+    plural: memcacheddeployments
+    singular: memcacheddeployment
+    kind: MemcachedDeployment
+    shortNames:
+      - mcd
 ```
 
-**Deploy the Manager to the cluster with the image specified by `IMG`:**
+### Fields:
+- `size`: Specifies the number of Memcached instances.
+- `image`: Defines the Docker image to use for the deployment.
 
-```sh
-make deploy IMG=<some-registry>/memcached-operator:tag
-```
+## Prerequisites
 
-> **NOTE**: If you encounter RBAC errors, you may need to grant yourself cluster-admin
-privileges or be logged in as admin.
+- Kubernetes cluster (v1.11.3 or higher)
+- kubectl (v1.11.3 or higher)
+- Go (v1.22.0 or higher)
+- Docker (v17.03 or higher)
 
-**Create instances of your solution**
-You can apply the samples (examples) from the config/sample:
+## Installation
 
-```sh
-kubectl apply -k config/samples/
-```
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/sagoresarker/memcached-operator.git
+   cd memcached-operator
+   ```
 
->**NOTE**: Ensure that the samples has default values to test it out.
+2. Build and push the operator image:
+   ```bash
+   make docker-build docker-push IMG=<your-registry>/memcached-operator:tag
+   ```
 
-### To Uninstall
-**Delete the instances (CRs) from the cluster:**
+3. Install the CRDs:
+   ```bash
+   make install
+   ```
 
-```sh
-kubectl delete -k config/samples/
-```
+4. Deploy the operator:
+   ```bash
+   make deploy IMG=<your-registry>/memcached-operator:tag
+   ```
 
-**Delete the APIs(CRDs) from the cluster:**
+## Usage
 
-```sh
-make uninstall
-```
+1. To create a Memcached deployment, use the following YAML configuration:
+   ```yaml
+   apiVersion: cache.example.com/v1
+   kind: MemcachedDeployment
+   metadata:
+     name: example-memcached
+   spec:
+     size: 3
+     image: memcached:1.4.36-alpine
+   ```
 
-**UnDeploy the controller from the cluster:**
+2. Apply the custom resource:
+   ```bash
+   kubectl apply -f config/samples/cache_v1_memcacheddeployment.yaml
+   ```
 
-```sh
-make undeploy
-```
+3. Verify the deployment:
+   ```bash
+   kubectl get memcacheddeployment
+   kubectl get pods
+   ```
+
+## Development
+
+- **Local Development**:
+  ```bash
+  make run
+  ```
+
+- **Running Tests**:
+  ```bash
+  make test
+  ```
 
 ## Project Distribution
 
-Following are the steps to build the installer and distribute this project to users.
-
-1. Build the installer for the image built and published in the registry:
-
-```sh
-make build-installer IMG=<some-registry>/memcached-operator:tag
+To build an installer for distribution:
+```bash
+make build-installer IMG=<your-registry>/memcached-operator:tag
 ```
 
-NOTE: The makefile target mentioned above generates an 'install.yaml'
-file in the dist directory. This file contains all the resources built
-with Kustomize, which are necessary to install this project without
-its dependencies.
-
-2. Using the installer
-
-Users can just run kubectl apply -f <URL for YAML BUNDLE> to install the project, i.e.:
-
-```sh
+This generates an `install.yaml` file in the `dist` directory, which can be used to install the operator:
+```bash
 kubectl apply -f https://raw.githubusercontent.com/<org>/memcached-operator/<tag or branch>/dist/install.yaml
 ```
 
-## Contributing
-// TODO(user): Add detailed information on how you would like others to contribute to this project
+## Cleanup
 
-**NOTE:** Run `make help` for more information on all potential `make` targets
-
-More information can be found via the [Kubebuilder Documentation](https://book.kubebuilder.io/introduction.html)
-
-## License
-
-Copyright 2024.
-
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-
-    http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-
+To remove the operator and CRDs from your cluster:
+```bash
+make uninstall
+make undeploy
+```
