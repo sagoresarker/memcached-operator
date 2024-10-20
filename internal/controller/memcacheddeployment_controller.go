@@ -152,21 +152,25 @@ func (r *MemcachedDeploymentReconciler) deploymentForMemcached(m *cachev1.Memcac
 					Labels: ls,
 				},
 				Spec: corev1.PodSpec{
-					Containers: []corev1.Container{{
-						Image: m.Spec.Image,
-						Name:  "memcached",
-						Ports: []corev1.ContainerPort{{
-							ContainerPort: 11211,
-							Name:          "memcached",
-						}},
-					}, {
-						Image: "nicolaka/netshoot",
-						Name:  "nettools",
-						Command: []string{
-							"sleep",
-							"3600",
+					Containers: []corev1.Container{
+						{
+							Image: m.Spec.Image,
+							Name:  "memcached",
+							Ports: []corev1.ContainerPort{{
+								ContainerPort: 11211,
+								Name:          "memcached",
+							}},
 						},
-					}},
+						// Adding nettools container
+						{
+							Image: "nicolaka/netshoot",
+							Name:  "nettools",
+							Command: []string{
+								"sleep",
+								"infinity",
+							},
+						},
+					},
 				},
 			},
 		},
