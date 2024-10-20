@@ -4,12 +4,16 @@
 
 The Memcached Operator is a Kubernetes operator designed to automate the deployment and management of Memcached instances within a Kubernetes cluster. It leverages a custom resource definition (CRD) to manage the lifecycle of Memcached deployments.
 
+## Here is the architecture of the operator:
+
+![Memcached Operator Architecture](docs/images/memcached-operator-architecture.png)
+
 ## Features
 
 - **Automated Deployment**: Simplifies the deployment of Memcached instances.
 - **Scalability**: Supports scaling of Memcached deployments.
 - **Status Monitoring**: Provides updates on the status of Memcached custom resources.
-- **Debugging Support**: Includes a debugging container (nettools) in each pod for troubleshooting.
+- **Debugging Support**: Each pod includes a debugging container (`nettools`) for network troubleshooting and diagnostics. It use nicolaka/netshoot image for nettools installation.
 
 ## Custom Resource Definition (CRD)
 
