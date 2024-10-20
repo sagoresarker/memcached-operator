@@ -7,6 +7,7 @@ The Memcached Operator is a Kubernetes operator designed to automate the deploym
 ## Here is the architecture of the operator:
 
 ![Memcached Operator Architecture](docs/images/memcached-operator-architecture.png)
+*Data flow diagram of a kubernetes memcache operator with nettools*
 
 ## Features
 
